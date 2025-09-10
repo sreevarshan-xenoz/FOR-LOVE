@@ -14,6 +14,16 @@
             background: linear-gradient(to bottom right, #fdf0f0, #f8e3e3, #f9d6d6);
             min-height: 100vh;
         }
+    /* Night theme variants */
+    body.theme-night { background: radial-gradient(1000px 600px at 50% -200px, #2a2a72, #000428); color: #e2e8f0; }
+    body.theme-night .step-content { background: rgba(255,255,255,0.08); backdrop-filter: blur(6px); box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4), 0 8px 10px -6px rgba(15, 23, 42, 0.3); }
+    body.theme-night .interactive-button { background: #22d3ee; color: #082f49; }
+    body.theme-night .interactive-button:hover { background: #06b6d4; }
+    body.theme-night .bg-rose-100 { background-color: rgba(255,255,255,0.08); }
+    body.theme-night .bg-rose-200 { background-color: rgba(255,255,255,0.12); }
+    body.theme-night .bg-gray-200 { background-color: rgba(255,255,255,0.12); }
+    body.theme-night .text-rose-600 { color: #fda4af; }
+    body.theme-night .settings-btn { background: #22d3ee; color: #082f49; }
     /* Progress bar */
     .progress-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 6px; z-index: 40; }
     .progress-track { width: 100%; height: 6px; background: rgba(244,113,182,0.2); }
@@ -417,6 +427,7 @@
     let theme = localStorage.getItem('theme') || 'pink';
     let musicUrl = localStorage.getItem('musicUrl') || "https://assets.mixkit.co/music/preview/mixkit-kissing-romantically-483.mp3";
     let reducedMotion = (localStorage.getItem('reducedMotion') || 'false') === 'true';
+    let volume = Math.max(0, Math.min(1, parseFloat(localStorage.getItem('volume') || '0.6')));
 
         // State management
         let currentStep = 0;
@@ -485,7 +496,7 @@
                 musicToggle.addEventListener('click', toggleMusic);
             }
             if (bgMusic) {
-                try { bgMusic.src = musicUrl; bgMusic.load(); } catch(e) {}
+                try { bgMusic.src = musicUrl; bgMusic.load(); bgMusic.volume = volume; } catch(e) {}
             }
         };
         
@@ -574,11 +585,12 @@
         
         // Generate confetti hearts for final step
         const generateConfettiHearts = () => {
-            confettiHearts = Array.from({ length: 50 }, (_, i) => ({
+            const total = reducedMotion ? 15 : 50;
+            confettiHearts = Array.from({ length: total }, (_, i) => ({
                 id: i,
                 left: Math.random() * 100,
-                delay: Math.random() * 3,
-                duration: 3 + Math.random() * 2,
+                delay: Math.random() * (reducedMotion ? 1.5 : 3),
+                duration: (reducedMotion ? 2 : 3) + Math.random() * (reducedMotion ? 1 : 2),
                 color: ['#ff1493', '#ff69b4', '#ffd700', '#ff6347'][Math.floor(Math.random() * 4)],
                 rotation: Math.random() * 360
             }));
@@ -623,7 +635,7 @@
             if (!container) return;
             
             container.innerHTML = '';
-            
+            if (reducedMotion) return;
             for (let i = 0; i < 15; i++) {
                 const size = Math.random() * 20 + 10;
                 const left = Math.random() * 100;
@@ -1068,11 +1080,14 @@
                             </div>
                             <label for="music">Music URL (mp3)</label>
                             <input id="musicUrlInput" type="url" placeholder="https://...mp3" value="${musicUrl}">
+                            <label for="volume">Music Volume</label>
+                            <input id="volumeInput" type="range" min="0" max="1" step="0.01" value="${volume}">
                             <div class="row">
                                 <div>
                                     <label for="theme">Theme</label>
                                     <select id="themeSelect">
                                         <option value="pink" ${theme==='pink'?'selected':''}>Romantic Pink</option>
+                                        <option value="night" ${theme==='night'?'selected':''}>Night Sky</option>
                                     </select>
                                 </div>
                                 <div>
@@ -1102,14 +1117,19 @@
                                 const newMusic = document.getElementById('musicUrlInput').value.trim() || musicUrl;
                                 const newTheme = document.getElementById('themeSelect').value;
                                 const newMotion = document.getElementById('motionSelect').value === 'true';
+                                const newVolume = Math.max(0, Math.min(1, parseFloat(document.getElementById('volumeInput').value)));
                                 herName = newHer; yourName = newYou; musicUrl = newMusic; theme = newTheme; reducedMotion = newMotion;
+                                volume = newVolume;
                                 localStorage.setItem('herName', herName);
                                 localStorage.setItem('yourName', yourName);
                                 localStorage.setItem('musicUrl', musicUrl);
                                 localStorage.setItem('theme', theme);
                                 localStorage.setItem('reducedMotion', String(reducedMotion));
+                                localStorage.setItem('volume', String(volume));
+                                // Apply theme
+                                if (theme === 'night') document.body.classList.add('theme-night'); else document.body.classList.remove('theme-night');
                                 // Apply music
-                                if (bgMusic) { try { bgMusic.src = musicUrl; bgMusic.load(); if (musicPlaying) bgMusic.play(); } catch(e){} }
+                                if (bgMusic) { try { bgMusic.src = musicUrl; bgMusic.load(); bgMusic.volume = volume; if (musicPlaying) bgMusic.play(); } catch(e){} }
                                 // Re-render for names
                                 render();
                                 closeSettings();
