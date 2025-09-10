@@ -138,6 +138,11 @@
             padding: 1rem;
             position: relative;
             z-index: 10;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         .step-content {
             background: white;
@@ -146,10 +151,12 @@
             box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.2), 
                         0 8px 10px -6px rgba(244, 114, 182, 0.15);
             transition: all 0.3s ease;
-            min-height: 100vh;
+            min-height: 80vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            max-width: 28rem;
         }
         .interactive-button {
             transition: all 0.3s ease;
@@ -174,26 +181,12 @@
         .interactive-button:active {
             transform: translateY(0);
         }
-        .bg-rose-500 { background-color: #f43f5e; }
-        .bg-rose-600 { background-color: #e11d48; }
-        .text-white { color: white; }
-        .text-gray-600 { color: #6b7280; }
-        .text-gray-700 { color: #374151; }
-        .text-rose-600 { color: #dc2626; }
-        .text-rose-500 { color: #f43f5e; }
-        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-        .text-6xl { font-size: 3.75rem; line-height: 1; }
-        .text-center { text-align: center; }
-        .font-bold { font-weight: 700; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        .mt-8 { margin-top: 2rem; }
-        .mx-auto { margin-left: auto; margin-right: auto; }
+        .flex-col { flex-direction: column; }
+        .sm\:flex-row { flex-direction: row; }
         .w-full { width: 100%; }
+        .sm\:w-auto { width: auto; }
         .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
         .justify-center { justify-content: center; }
         .items-center { align-items: center; }
         .gap-2 { gap: 0.5rem; }
@@ -242,6 +235,7 @@
         .mt-6 { margin-top: 1.5rem; }
         .mb-2 { margin-bottom: 0.5rem; }
         .ml-2 { margin-left: 0.5rem; }
+        .mb-12 { margin-bottom: 3rem; }
         .relative { position: relative; }
         .absolute { position: absolute; }
         .top-0 { top: 0; }
@@ -258,18 +252,63 @@
         .max-w-md { max-width: 28rem; }
         .object-cover { object-fit: cover; }
         .scale-50 { transform: scale(0.5); }
-        .max-w-md { max-width: 28rem; }
         .text-yellow-300 { color: #fde047; }
         .animate-spin { animation: spin 1s linear infinite; }
+        
+        /* Custom responsive classes */
+        @media (min-width: 640px) {
+            .sm\:flex-row { flex-direction: row; }
+            .sm\:w-auto { width: auto; }
+        }
+        
+        /* Base utility classes */
+        .bg-rose-500 { background-color: #f43f5e; }
+        .bg-rose-600 { background-color: #e11d48; }
+        .text-white { color: white; }
+        .text-gray-600 { color: #6b7280; }
+        .text-gray-700 { color: #374151; }
+        .text-rose-600 { color: #dc2626; }
+        .text-rose-500 { color: #f43f5e; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-6xl { font-size: 3.75rem; line-height: 1; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        
+        /* Hover effects */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
         .hover\:rotate-12:hover { transform: rotate(12deg); }
         .hover\:bg-rose-300:hover { background-color: #fda4af; }
+        .hover\:bg-rose-600:hover { background-color: #e11d48; }
         .hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
         .hover\:scale-105:hover { transform: scale(1.05); }
         .hover\:rotate-1:hover { transform: rotate(1deg); }
+        
+        /* Button styling improvements */
+        .no-button {
+            background-color: #e5e7eb;
+            color: #374151;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .no-button:hover {
+            background-color: #fda4af;
+            transform: scale(1.05);
+        }
 
         /* Custom styles for better mobile experience */
         @media (max-width: 640px) {
@@ -399,28 +438,39 @@
             updateVolumeIcon();
         };
         
-        // Set up event listeners
-        if (musicToggle) {
-            musicToggle.addEventListener('click', toggleMusic);
-        }
+        // Set up event listeners - moved to initialization
+        const setupMusicControl = () => {
+            const musicToggle = document.getElementById('musicToggle');
+            if (musicToggle) {
+                musicToggle.addEventListener('click', toggleMusic);
+            }
+        };
         
         // Update current step and re-render
         const setCurrentStep = (step) => {
-            // Clear any existing intervals
-            if (memoryInterval) clearInterval(memoryInterval);
-            if (signatureTimeout) clearTimeout(signatureTimeout);
+            // Clear any existing intervals and timeouts
+            if (memoryInterval) {
+                clearInterval(memoryInterval);
+                memoryInterval = null;
+            }
+            if (signatureTimeout) {
+                clearTimeout(signatureTimeout);
+                signatureTimeout = null;
+            }
             
             currentStep = step;
             render();
             
-            // Add step-specific behaviors
-            if (currentStep === 4) {
-                startMemoryCarousel();
-            } else if (currentStep === 5 && isEnvelopeOpen) {
-                animateSignature();
-            } else if (currentStep === 6) {
-                startConfetti();
-            }
+            // Add step-specific behaviors with proper timing
+            setTimeout(() => {
+                if (currentStep === 4) {
+                    startMemoryCarousel();
+                } else if (currentStep === 5 && isEnvelopeOpen) {
+                    animateSignature();
+                } else if (currentStep === 6) {
+                    startConfetti();
+                }
+            }, 100); // Small delay to ensure DOM is updated
         };
         
         // Handle Yes button click
@@ -460,18 +510,7 @@
         // Open envelope animation
         const openEnvelope = () => {
             isEnvelopeOpen = true;
-            render();
-            
-            // Start the letter animation
-            setTimeout(() => {
-                const letterLines = document.querySelectorAll('.letter-line');
-                letterLines.forEach((line, index) => {
-                    setTimeout(() => {
-                        line.style.opacity = 1;
-                        line.style.transform = 'translateY(0)';
-                    }, 500 + index * 300);
-                });
-            }, 300);
+            setCurrentStep(currentStep + 1); // Move to next step and re-render
         };
         
         // Animate signature
@@ -573,28 +612,39 @@
             ];
             
             let currentIndex = 0;
-            const imageElement = document.getElementById('memoryImage');
-            const captionElement = document.querySelector('.memory-caption');
             
-            if (imageElement && captionElement) {
-                memoryInterval = setInterval(() => {
-                    // Fade out current
-                    imageElement.style.opacity = 0;
+            // Wait for DOM elements to be available
+            setTimeout(() => {
+                const imageElement = document.getElementById('memoryImage');
+                const captionElement = document.querySelector('.memory-caption');
+                
+                if (imageElement && captionElement) {
+                    // Set initial image
+                    imageElement.src = memories[0].src;
+                    imageElement.alt = memories[0].alt;
+                    captionElement.textContent = memories[0].caption;
+                    imageElement.style.opacity = 1;
                     
-                    setTimeout(() => {
-                        // Move to next memory
-                        currentIndex = (currentIndex + 1) % memories.length;
+                    // Start carousel
+                    memoryInterval = setInterval(() => {
+                        // Fade out current
+                        imageElement.style.opacity = 0;
                         
-                        // Update content
-                        imageElement.src = memories[currentIndex].src;
-                        imageElement.alt = memories[currentIndex].alt;
-                        captionElement.textContent = memories[currentIndex].caption;
-                        
-                        // Fade in new
-                        imageElement.style.opacity = 1;
-                    }, 500);
-                }, 3000);
-            }
+                        setTimeout(() => {
+                            // Move to next memory
+                            currentIndex = (currentIndex + 1) % memories.length;
+                            
+                            // Update content
+                            imageElement.src = memories[currentIndex].src;
+                            imageElement.alt = memories[currentIndex].alt;
+                            captionElement.textContent = memories[currentIndex].caption;
+                            
+                            // Fade in new
+                            imageElement.style.opacity = 1;
+                        }, 500);
+                    }, 3000);
+                }
+            }, 200);
         };
         
         // Render the current step
@@ -628,8 +678,10 @@
                                 }, 500 + index * 300);
                             });
                             
-                            // Start signature animation
-                            animateSignature();
+                            // Start signature animation after all lines are shown
+                            setTimeout(() => {
+                                animateSignature();
+                            }, 500 + letterLines.length * 300 + 500);
                         }, 300);
                     }
                     break;
@@ -715,7 +767,7 @@
                             </svg>
                             Yes ✅
                         </button>
-                        <button class="no-button bg-gray-200 hover:bg-rose-300 text-gray-700 font-bold py-4 px-6 rounded-xl w-full" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
+                        <button class="no-button" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
                             No 😔
                         </button>
                     </div>
@@ -742,7 +794,7 @@
                             </svg>
                             Yes ✅
                         </button>
-                        <button class="no-button bg-gray-200 hover:bg-rose-300 text-gray-700 font-bold py-4 px-6 rounded-xl w-full" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
+                        <button class="no-button" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
                             No 😔
                         </button>
                     </div>
@@ -892,7 +944,13 @@
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
+            // Setup music controls
+            setupMusicControl();
+            
+            // Create floating hearts background
             createFloatingHearts();
+            
+            // Render initial step
             render();
             
             // For mobile devices, need user interaction to start audio
