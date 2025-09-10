@@ -22,6 +22,7 @@
     body.theme-night .bg-rose-100 { background-color: rgba(255,255,255,0.08); }
     body.theme-night .bg-rose-200 { background-color: rgba(255,255,255,0.12); }
     body.theme-night .bg-gray-200 { background-color: rgba(255,255,255,0.12); }
+    body.theme-night .text-gray-600, body.theme-night .text-gray-700 { color: #e2e8f0; }
     body.theme-night .text-rose-600 { color: #fda4af; }
     body.theme-night .settings-btn { background: #22d3ee; color: #082f49; }
     /* Progress bar */
@@ -1053,6 +1054,8 @@
                         setupCursorHearts();
                         setupMusicControl();
                         render();
+                        // Apply theme on load
+                        if (theme === 'night') document.body.classList.add('theme-night'); else document.body.classList.remove('theme-night');
                         document.addEventListener('click', function initAudio() {
                                 if (!musicPlaying && bgMusic) {
                                         bgMusic.play().catch(e => console.log("Autoplay still blocked"));
