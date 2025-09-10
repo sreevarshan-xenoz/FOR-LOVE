@@ -14,6 +14,10 @@
             background: linear-gradient(to bottom right, #fdf0f0, #f8e3e3, #f9d6d6);
             min-height: 100vh;
         }
+    /* Progress bar */
+    .progress-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 6px; z-index: 40; }
+    .progress-track { width: 100%; height: 6px; background: rgba(244,113,182,0.2); }
+    .progress-bar { height: 6px; width: 0%; background: linear-gradient(90deg, #fb7185, #f43f5e, #e11d48); transition: width 300ms ease; }
         .signature-svg {
             font-family: 'Dancing Script', cursive;
         }
@@ -347,11 +351,42 @@
                 opacity: 0;
             }
         }
+        /* Cursor heart trail */
+        .cursor-heart { position: fixed; pointer-events: none; will-change: transform, opacity; animation: heartFade 1.2s ease-out forwards; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+        @keyframes heartFade {
+            0% { transform: translate(-50%, -50%) scale(0.6) rotate(0deg); opacity: 0.9; }
+            70% { opacity: 0.9; }
+            100% { transform: translate(-50%, -120%) scale(1.2) rotate(20deg); opacity: 0; }
+        }
+    /* Settings modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 60; }
+    .modal { width: 95%; max-width: 28rem; background: #fff; border-radius: 1rem; padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .modal h3 { margin: 0 0 0.75rem; font-size: 1.25rem; }
+    .modal label { font-size: 0.875rem; color: #374151; display: block; margin: 0.5rem 0 0.25rem; }
+    .modal input, .modal select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; outline: none; }
+    .modal .row { display: flex; gap: 0.75rem; }
+    .modal .row > div { flex: 1; }
+    /* Settings floating button */
+    .settings-btn { position: fixed; top: 1rem; left: 1rem; z-index: 50; background: #f43f5e; color: #fff; border: none; border-radius: 9999px; padding: 0.6rem; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(244, 114, 182, 0.3), 0 4px 6px -2px rgba(244, 114, 182, 0.2); }
+    .settings-btn:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <!-- Progress bar -->
+    <div class="progress-wrap">
+        <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+    </div>
     <!-- Floating Hearts Background -->
     <div id="floatingHearts" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+    <!-- Settings Button -->
+    <button id="openSettings" class="settings-btn" aria-label="Open settings">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+    </button>
     
     <!-- Music Control -->
     <div class="fixed top-4 right-4 z-50">
@@ -376,9 +411,12 @@
     </div>
 
     <script>
-        // Constants - REPLACE WITH YOUR PERSONAL DETAILS
-        const HER_NAME = "My Love";
-        const YOUR_NAME = "Alex";
+    // Personalization (persistent)
+    let herName = localStorage.getItem('herName') || "My Love";
+    let yourName = localStorage.getItem('yourName') || "Alex";
+    let theme = localStorage.getItem('theme') || 'pink';
+    let musicUrl = localStorage.getItem('musicUrl') || "https://assets.mixkit.co/music/preview/mixkit-kissing-romantically-483.mp3";
+    let reducedMotion = (localStorage.getItem('reducedMotion') || 'false') === 'true';
 
         // State management
         let currentStep = 0;
@@ -393,7 +431,9 @@
         const app = document.getElementById('app');
         const musicToggle = document.getElementById('musicToggle');
         const volumeIcon = document.getElementById('volumeIcon');
-        const bgMusic = document.getElementById('bgMusic');
+    const bgMusic = document.getElementById('bgMusic');
+    const progressBar = document.getElementById('progressBar');
+    const settingsBtn = document.getElementById('openSettings');
         
         // Start music on first interaction
         const handleFirstClick = () => {
@@ -444,6 +484,9 @@
             if (musicToggle) {
                 musicToggle.addEventListener('click', toggleMusic);
             }
+            if (bgMusic) {
+                try { bgMusic.src = musicUrl; bgMusic.load(); } catch(e) {}
+            }
         };
         
         // Update current step and re-render
@@ -466,11 +509,17 @@
                 if (currentStep === 4) {
                     startMemoryCarousel();
                 } else if (currentStep === 5 && isEnvelopeOpen) {
-                    animateSignature();
+                    // Letter typing; signature after typing completes
+                    typeLetterLines();
                 } else if (currentStep === 6) {
                     startConfetti();
                 }
             }, 100); // Small delay to ensure DOM is updated
+            // Update progress bar (7 steps total idx 0..6)
+            if (progressBar) {
+                const pct = Math.min(100, Math.max(0, (currentStep) / 6 * 100));
+                progressBar.style.width = pct + '%';
+            }
         };
         
         // Handle Yes button click
@@ -568,7 +617,7 @@
             }, 1000);
         };
         
-        // Create floating hearts background
+    // Create floating hearts background
         const createFloatingHearts = () => {
             const container = document.getElementById('floatingHearts');
             if (!container) return;
@@ -589,6 +638,65 @@
                 heart.style.animation = `floatUp ${duration}s linear ${delay}s infinite`;
                 container.appendChild(heart);
             }
+        };
+
+        // Cursor heart trail
+        const setupCursorHearts = () => {
+            let lastSpawn = 0;
+            let active = [];
+            const cap = 14;
+            const spawn = (x, y) => {
+                const el = document.createElement('div');
+                el.className = 'cursor-heart';
+                el.textContent = '💗';
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.zIndex = 5;
+                document.body.appendChild(el);
+                active.push(el);
+                if (active.length > cap) {
+                    const old = active.shift();
+                    old.remove();
+                }
+                setTimeout(() => el.remove(), 1200);
+            };
+            window.addEventListener('mousemove', (e) => {
+                if (reducedMotion) return;
+                const now = performance.now();
+                if (now - lastSpawn > 80) {
+                    lastSpawn = now;
+                    spawn(e.clientX, e.clientY);
+                }
+            });
+        };
+
+        // Typewriter for letter lines
+        const typeLetterLines = () => {
+            const container = document.querySelector('.envelope-content');
+            if (!container) return;
+            const lines = Array.from(container.querySelectorAll('.letter-line'));
+            let i = 0;
+            const typeLine = () => {
+                if (i >= lines.length) { animateSignature(); return; }
+                const p = lines[i];
+                const full = p.textContent.trim();
+                p.textContent = '';
+                p.style.opacity = 1;
+                let idx = 0;
+                const speed = 18;
+                const step = () => {
+                    if (idx <= full.length) {
+                        p.textContent = full.slice(0, idx);
+                        idx++;
+                        setTimeout(step, reducedMotion ? 0 : speed);
+                    } else {
+                        i++;
+                        setTimeout(typeLine, reducedMotion ? 0 : 200);
+                    }
+                };
+                step();
+            };
+            typeLine();
         };
         
         // Memory carousel functionality
@@ -667,23 +775,7 @@
                     break;
                 case 5: 
                     app.innerHTML = renderEnvelopeStep();
-                    if (isEnvelopeOpen) {
-                        // Start letter animation
-                        setTimeout(() => {
-                            const letterLines = document.querySelectorAll('.letter-line');
-                            letterLines.forEach((line, index) => {
-                                setTimeout(() => {
-                                    line.style.opacity = 1;
-                                    line.style.transform = 'translateY(0)';
-                                }, 500 + index * 300);
-                            });
-                            
-                            // Start signature animation after all lines are shown
-                            setTimeout(() => {
-                                animateSignature();
-                            }, 500 + letterLines.length * 300 + 500);
-                        }, 300);
-                    }
+                    // Typewriter handled in setCurrentStep when isEnvelopeOpen
                     break;
                 case 6: 
                     app.innerHTML = renderConfettiStep();
@@ -736,7 +828,7 @@
                 <div class="text-center">
                     <div class="text-6xl mb-4 animate-pulse">❤️</div>
                     <h1 class="text-3xl font-bold mb-4">Something special is coming...</h1>
-                    <p class="text-lg text-gray-600 mb-8">For ${HER_NAME} ❤️</p>
+                    <p class="text-lg text-gray-600 mb-8">For ${herName} ❤️</p>
                     <div class="flex justify-center gap-2 mb-8">
                         <div class="w-3 h-3 bg-rose-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
                         <div class="w-3 h-3 bg-rose-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
@@ -780,7 +872,7 @@
             return `
                 <div class="text-center">
                     <div class="text-6xl mb-4 animate-pulse">❤️</div>
-                    <h1 class="text-3xl font-bold mb-4">${HER_NAME}, do you like me?</h1>
+                    <h1 class="text-3xl font-bold mb-4">${herName}, do you like me?</h1>
                     <p class="text-xl mb-8">Be honest with me...</p>
                     <div class="mb-8" style="animation: scaleIn 0.5s ease-out forwards; animation-delay: 0.3s;">
                         <div class="w-40 h-40 bg-rose-200 rounded-full mx-auto flex items-center justify-center text-5xl shadow-lg">
@@ -886,7 +978,7 @@
                                         <svg width="180" height="50" viewBox="0 0 180 50" class="signature-svg">
                                             <path class="signature-path" d="M10,35 Q25,15 45,30 T85,25 Q105,15 125,30 T165,28 Q175,35 175,35" fill="none" stroke="#C2410C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
                                             <text class="signature-text" x="175" y="35" text-anchor="end" fill="#C2410C" font-size="16" font-weight="bold">
-                                                ${YOUR_NAME}
+                                                ${yourName}
                                             </text>
                                         </svg>
                                         <div class="feather-icon ml-2 text-rose-500" style="opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transition-delay: 4.8s;">
@@ -935,7 +1027,7 @@
                             I'm so happy you said YES! Let's create forever together 💍
                         </p>
                         <div class="mt-8 text-lg text-rose-500 font-medium final-message" style="opacity: 0;">
-                            Thank you for saying yes to forever, ${HER_NAME} ❤️
+                            Thank you for saying yes to forever, ${herName} ❤️
                         </div>
                     </div>
                 </div>
@@ -943,26 +1035,86 @@
         };
         
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup music controls
-            setupMusicControl();
-            
-            // Create floating hearts background
-            createFloatingHearts();
-            
-            // Render initial step
-            render();
-            
-            // For mobile devices, need user interaction to start audio
-            document.addEventListener('click', function initAudio() {
-                if (!musicPlaying && bgMusic) {
-                    bgMusic.play().catch(e => console.log("Autoplay still blocked"));
-                    musicPlaying = true;
-                    updateVolumeIcon();
-                }
-                document.removeEventListener('click', initAudio);
-            }, { once: true });
-        });
+                document.addEventListener('DOMContentLoaded', () => {
+                        // Apply theme (future: add night theme variants)
+                        createFloatingHearts();
+                        setupCursorHearts();
+                        setupMusicControl();
+                        render();
+                        document.addEventListener('click', function initAudio() {
+                                if (!musicPlaying && bgMusic) {
+                                        bgMusic.play().catch(e => console.log("Autoplay still blocked"));
+                                        musicPlaying = true;
+                                        updateVolumeIcon();
+                                }
+                                document.removeEventListener('click', initAudio);
+                        }, { once: true });
+                });
+
+                // Settings modal logic
+                const settingsMarkup = `
+                    <div id="settingsBackdrop" class="modal-backdrop">
+                        <div class="modal">
+                            <h3>Personalize</h3>
+                            <div class="row">
+                                <div>
+                                    <label for="herName">Her name</label>
+                                    <input id="herNameInput" type="text" placeholder="Her name" value="${herName}">
+                                </div>
+                                <div>
+                                    <label for="yourName">Your name</label>
+                                    <input id="yourNameInput" type="text" placeholder="Your name" value="${yourName}">
+                                </div>
+                            </div>
+                            <label for="music">Music URL (mp3)</label>
+                            <input id="musicUrlInput" type="url" placeholder="https://...mp3" value="${musicUrl}">
+                            <div class="row">
+                                <div>
+                                    <label for="theme">Theme</label>
+                                    <select id="themeSelect">
+                                        <option value="pink" ${theme==='pink'?'selected':''}>Romantic Pink</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="motion">Reduced Motion</label>
+                                    <select id="motionSelect">
+                                        <option value="false" ${!reducedMotion?'selected':''}>Full animations</option>
+                                        <option value="true" ${reducedMotion?'selected':''}>Reduced</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1rem;">
+                                <button id="closeSettings" class="no-button" style="width:auto;">Cancel</button>
+                                <button id="saveSettings" class="interactive-button" style="width:auto;">Save</button>
+                            </div>
+                        </div>
+                    </div>`;
+                document.body.insertAdjacentHTML('beforeend', settingsMarkup);
+                const backdrop = document.getElementById('settingsBackdrop');
+                const openSettings = () => { backdrop.style.display = 'flex'; };
+                const closeSettings = () => { backdrop.style.display = 'none'; };
+                if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
+                document.addEventListener('click', (e) => {
+                        if (e.target && (e.target.id === 'closeSettings' || e.target === backdrop)) closeSettings();
+                        if (e.target && e.target.id === 'saveSettings') {
+                                const newHer = document.getElementById('herNameInput').value.trim() || herName;
+                                const newYou = document.getElementById('yourNameInput').value.trim() || yourName;
+                                const newMusic = document.getElementById('musicUrlInput').value.trim() || musicUrl;
+                                const newTheme = document.getElementById('themeSelect').value;
+                                const newMotion = document.getElementById('motionSelect').value === 'true';
+                                herName = newHer; yourName = newYou; musicUrl = newMusic; theme = newTheme; reducedMotion = newMotion;
+                                localStorage.setItem('herName', herName);
+                                localStorage.setItem('yourName', yourName);
+                                localStorage.setItem('musicUrl', musicUrl);
+                                localStorage.setItem('theme', theme);
+                                localStorage.setItem('reducedMotion', String(reducedMotion));
+                                // Apply music
+                                if (bgMusic) { try { bgMusic.src = musicUrl; bgMusic.load(); if (musicPlaying) bgMusic.play(); } catch(e){} }
+                                // Re-render for names
+                                render();
+                                closeSettings();
+                        }
+                });
     </script>
 </body>
 </html>
