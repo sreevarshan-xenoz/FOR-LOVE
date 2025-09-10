@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Love ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #fdf0f0, #f8e3e3, #f9d6d6);
+            min-height: 100vh;
+        }
+        .signature-svg {
+            font-family: 'Dancing Script', cursive;
+        }
+        .memory-img {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .envelope {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .envelope-flap {
+            transform-origin: top;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes sparkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes drawSignature {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes showText {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -30px, 0);
+            }
+            70% {
+                transform: translate3d(0, -15px, 0);
+            }
+            90% {
+                transform: translate3d(0,-4px,0);
+            }
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+        .sparkle {
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        .memory-caption {
+            min-height: 2.5rem;
+        }
+        .signature-path {
+            stroke-dasharray: 150;
+            stroke-dashoffset: 150;
+            transition: stroke-dashoffset 0s;
+        }
+        .signature-text {
+            opacity: 0;
+        }
+        .show-signature .signature-path {
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1.8s ease-out;
+        }
+        .show-signature .signature-text {
+            animation: fadeIn 0.5s ease-out 2.5s forwards;
+        }
+        .letter-line {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .show-letter .letter-line {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s ease-out;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .confetti-piece {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.7;
+            animation: confetti-fall linear forwards;
+        }
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        .content-container {
+            max-width: 28rem;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+        .step-content {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.2), 
+                        0 8px 10px -6px rgba(244, 114, 182, 0.15);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .interactive-button {
+            transition: all 0.3s ease;
+            will-change: transform, box-shadow;
+            background: #f43f5e;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .interactive-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(244, 114, 182, 0.3),
+                        0 4px 6px -2px rgba(244, 114, 182, 0.2);
+            background: #e11d48;
+        }
+        .interactive-button:active {
+            transform: translateY(0);
+        }
+        .bg-rose-500 { background-color: #f43f5e; }
+        .bg-rose-600 { background-color: #e11d48; }
+        .text-white { color: white; }
+        .text-gray-600 { color: #6b7280; }
+        .text-gray-700 { color: #374151; }
+        .text-rose-600 { color: #dc2626; }
+        .text-rose-500 { color: #f43f5e; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-6xl { font-size: 3.75rem; line-height: 1; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .w-full { width: 100%; }
+        .flex { display: flex; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-8 { gap: 2rem; }
+        .fixed { position: fixed; }
+        .top-4 { top: 1rem; }
+        .right-4 { right: 1rem; }
+        .z-50 { z-index: 50; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }
+        .rounded-full { border-radius: 9999px; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .w-3 { width: 0.75rem; }
+        .h-3 { height: 0.75rem; }
+        .w-20 { width: 5rem; }
+        .h-24 { height: 6rem; }
+        .w-40 { width: 10rem; }
+        .h-40 { height: 10rem; }
+        .w-64 { width: 16rem; }
+        .h-48 { height: 12rem; }
+        .bg-rose-200 { background-color: #fecdd3; }
+        .bg-rose-400 { background-color: #fb7185; }
+        .bg-white { background-color: white; }
+        .bg-rose-100 { background-color: #ffe4e6; }
+        .bg-gray-200 { background-color: #e5e7eb; }
+        .text-gray-500 { color: #6b7280; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-5xl { font-size: 3rem; line-height: 1; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .font-medium { font-weight: 500; }
+        .italic { font-style: italic; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        .leading-relaxed { line-height: 1.625; }
+        .border-t { border-top-width: 1px; }
+        .border-dashed { border-style: dashed; }
+        .border-rose-200 { border-color: #fecdd3; }
+        .pt-4 { padding-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .ml-2 { margin-left: 0.5rem; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .top-0 { top: 0; }
+        .left-0 { left: 0; }
+        .top-1-2 { top: 50%; }
+        .top-1-4 { top: 25%; }
+        .h-1-2 { height: 50%; }
+        .h-3-4 { height: 75%; }
+        .rounded-t-lg { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .rounded-b-lg { border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; }
+        .overflow-hidden { overflow: hidden; }
+        .justify-end { justify-content: flex-end; }
+        .items-end { align-items: flex-end; }
+        .max-w-md { max-width: 28rem; }
+        .object-cover { object-fit: cover; }
+        .scale-50 { transform: scale(0.5); }
+        .max-w-md { max-width: 28rem; }
+        .text-yellow-300 { color: #fde047; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .hover\:rotate-12:hover { transform: rotate(12deg); }
+        .hover\:bg-rose-300:hover { background-color: #fda4af; }
+        .hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .hover\:scale-105:hover { transform: scale(1.05); }
+        .hover\:rotate-1:hover { transform: rotate(1deg); }
+
+        /* Custom styles for better mobile experience */
+        @media (max-width: 640px) {
+            .content-container {
+                padding: 0.5rem;
+            }
+            .step-content {
+                padding: 1rem;
+                border-radius: 1rem;
+            }
+            .text-3xl { font-size: 1.5rem; line-height: 2rem; }
+            .text-5xl { font-size: 2.5rem; line-height: 1; }
+            .w-64 { width: 90%; }
+        }
+
+        /* Floating hearts background */
+        .floating-heart {
+            position: absolute;
+            animation: floatUp linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.2;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <!-- Floating Hearts Background -->
+    <div id="floatingHearts" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+    
+    <!-- Music Control -->
+    <div class="fixed top-4 right-4 z-50">
+        <audio id="bgMusic" loop>
+            <!-- Replace with your actual music file -->
+            <source src="https://assets.mixkit.co/music/preview/mixkit-kissing-romantically-483.mp3" type="audio/mpeg">
+        </audio>
+        <button id="musicToggle" class="bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:rotate-12">
+            <svg id="volumeIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container">
+        <div id="app" class="step-content">
+            <!-- Step content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Constants - REPLACE WITH YOUR PERSONAL DETAILS
+        const HER_NAME = "My Love";
+        const YOUR_NAME = "Alex";
+
+        // State management
+        let currentStep = 0;
+        let isEnvelopeOpen = false;
+        let confettiHearts = [];
+        let musicPlaying = false;
+        let noButtonPosition = { x: 0, y: 0 };
+        let memoryInterval;
+        let signatureTimeout;
+        
+        // DOM Elements
+        const app = document.getElementById('app');
+        const musicToggle = document.getElementById('musicToggle');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // Start music on first interaction
+        const handleFirstClick = () => {
+            if (bgMusic && !musicPlaying) {
+                bgMusic.play().catch(e => console.log("Autoplay blocked:", e));
+                musicPlaying = true;
+                updateVolumeIcon();
+            }
+            setCurrentStep(currentStep + 1);
+        };
+        
+        // Update volume icon based on state
+        const updateVolumeIcon = () => {
+            if (!volumeIcon) return;
+            
+            if (musicPlaying) {
+                volumeIcon.innerHTML = `
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                `;
+            } else {
+                volumeIcon.innerHTML = `
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                `;
+            }
+        };
+        
+        // Toggle music playback
+        const toggleMusic = () => {
+            if (!bgMusic) return;
+            
+            if (musicPlaying) {
+                bgMusic.pause();
+            } else {
+                bgMusic.play().catch(e => {
+                    console.log("Autoplay blocked, need user interaction");
+                });
+            }
+            musicPlaying = !musicPlaying;
+            updateVolumeIcon();
+        };
+        
+        // Set up event listeners
+        if (musicToggle) {
+            musicToggle.addEventListener('click', toggleMusic);
+        }
+        
+        // Update current step and re-render
+        const setCurrentStep = (step) => {
+            // Clear any existing intervals
+            if (memoryInterval) clearInterval(memoryInterval);
+            if (signatureTimeout) clearTimeout(signatureTimeout);
+            
+            currentStep = step;
+            render();
+            
+            // Add step-specific behaviors
+            if (currentStep === 4) {
+                startMemoryCarousel();
+            } else if (currentStep === 5 && isEnvelopeOpen) {
+                animateSignature();
+            } else if (currentStep === 6) {
+                startConfetti();
+            }
+        };
+        
+        // Handle Yes button click
+        const handleYes = () => {
+            setCurrentStep(currentStep + 1);
+        };
+        
+        // Handle No button click (with movement)
+        const handleNo = (e) => {
+            const moveAway = () => {
+                const newX = Math.random() * 200 - 100;
+                const newY = Math.random() * 200 - 100;
+                noButtonPosition = { x: newX, y: newY };
+                
+                // Update the button position if it exists
+                const noButton = document.querySelector('.no-button');
+                if (noButton) {
+                    noButton.style.transform = `translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)`;
+                }
+            };
+            
+            // Initial move
+            moveAway();
+            
+            // Continue moving randomly
+            const interval = setInterval(moveAway, 100);
+            
+            // Stop moving after 3 seconds and proceed
+            setTimeout(() => {
+                clearInterval(interval);
+                // Reset position for next time
+                noButtonPosition = { x: 0, y: 0 };
+                setCurrentStep(currentStep + 1);
+            }, 3000);
+        };
+        
+        // Open envelope animation
+        const openEnvelope = () => {
+            isEnvelopeOpen = true;
+            render();
+            
+            // Start the letter animation
+            setTimeout(() => {
+                const letterLines = document.querySelectorAll('.letter-line');
+                letterLines.forEach((line, index) => {
+                    setTimeout(() => {
+                        line.style.opacity = 1;
+                        line.style.transform = 'translateY(0)';
+                    }, 500 + index * 300);
+                });
+            }, 300);
+        };
+        
+        // Animate signature
+        const animateSignature = () => {
+            signatureTimeout = setTimeout(() => {
+                const envelope = document.querySelector('.envelope-content');
+                if (envelope) {
+                    envelope.classList.add('show-signature');
+                }
+            }, 2500);
+        };
+        
+        // Generate confetti hearts for final step
+        const generateConfettiHearts = () => {
+            confettiHearts = Array.from({ length: 50 }, (_, i) => ({
+                id: i,
+                left: Math.random() * 100,
+                delay: Math.random() * 3,
+                duration: 3 + Math.random() * 2,
+                color: ['#ff1493', '#ff69b4', '#ffd700', '#ff6347'][Math.floor(Math.random() * 4)],
+                rotation: Math.random() * 360
+            }));
+        };
+        
+        // Start confetti animation
+        const startConfetti = () => {
+            generateConfettiHearts();
+            let confettiContainer = document.getElementById('confettiContainer');
+            
+            if (!confettiContainer) {
+                confettiContainer = document.createElement('div');
+                confettiContainer.id = 'confettiContainer';
+                confettiContainer.className = 'confetti-container';
+                document.body.appendChild(confettiContainer);
+            }
+            
+            confettiContainer.innerHTML = '';
+            
+            confettiHearts.forEach(heart => {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.textContent = '❤️';
+                piece.style.left = `${heart.left}%`;
+                piece.style.color = heart.color;
+                piece.style.animation = `confetti-fall ${heart.duration}s linear ${heart.delay}s forwards`;
+                confettiContainer.appendChild(piece);
+            });
+            
+            // Add celebratory text animation
+            setTimeout(() => {
+                const message = document.querySelector('.final-message');
+                if (message) {
+                    message.style.animation = 'fadeIn 0.5s ease-out forwards';
+                }
+            }, 1000);
+        };
+        
+        // Create floating hearts background
+        const createFloatingHearts = () => {
+            const container = document.getElementById('floatingHearts');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                const size = Math.random() * 20 + 10;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = '❤️';
+                heart.style.fontSize = `${size}px`;
+                heart.style.left = `${left}%`;
+                heart.style.animation = `floatUp ${duration}s linear ${delay}s infinite`;
+                container.appendChild(heart);
+            }
+        };
+        
+        // Memory carousel functionality
+        const startMemoryCarousel = () => {
+            const memories = [
+                {
+                    src: "https://images.unsplash.com/photo-1516487106395-f2d269d6a21c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                    caption: "Our first coffee date ☕️",
+                    alt: "Our first coffee date where we talked for 3 hours straight"
+                },
+                {
+                    src: "https://images.unsplash.com/photo-1531913764164-f85c52e6e654?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                    caption: "That rainy day walk 🌧️",
+                    alt: "Walking together in the rain, sharing one umbrella"
+                },
+                {
+                    src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                    caption: "Sunset at the beach 🌅",
+                    alt: "Watching the sunset together, knowing this was special"
+                }
+            ];
+            
+            let currentIndex = 0;
+            const imageElement = document.getElementById('memoryImage');
+            const captionElement = document.querySelector('.memory-caption');
+            
+            if (imageElement && captionElement) {
+                memoryInterval = setInterval(() => {
+                    // Fade out current
+                    imageElement.style.opacity = 0;
+                    
+                    setTimeout(() => {
+                        // Move to next memory
+                        currentIndex = (currentIndex + 1) % memories.length;
+                        
+                        // Update content
+                        imageElement.src = memories[currentIndex].src;
+                        imageElement.alt = memories[currentIndex].alt;
+                        captionElement.textContent = memories[currentIndex].caption;
+                        
+                        // Fade in new
+                        imageElement.style.opacity = 1;
+                    }, 500);
+                }, 3000);
+            }
+        };
+        
+        // Render the current step
+        const render = () => {
+            switch(currentStep) {
+                case 0: 
+                    app.innerHTML = renderIntroStep();
+                    break;
+                case 1: 
+                    app.innerHTML = renderSurpriseQuestion();
+                    break;
+                case 2: 
+                    app.innerHTML = renderLikeMeQuestion();
+                    break;
+                case 3: 
+                    app.innerHTML = renderBalloonStep();
+                    break;
+                case 4: 
+                    app.innerHTML = renderMemoryStep();
+                    break;
+                case 5: 
+                    app.innerHTML = renderEnvelopeStep();
+                    if (isEnvelopeOpen) {
+                        // Start letter animation
+                        setTimeout(() => {
+                            const letterLines = document.querySelectorAll('.letter-line');
+                            letterLines.forEach((line, index) => {
+                                setTimeout(() => {
+                                    line.style.opacity = 1;
+                                    line.style.transform = 'translateY(0)';
+                                }, 500 + index * 300);
+                            });
+                            
+                            // Start signature animation
+                            animateSignature();
+                        }, 300);
+                    }
+                    break;
+                case 6: 
+                    app.innerHTML = renderConfettiStep();
+                    startConfetti();
+                    break;
+                default: 
+                    app.innerHTML = renderIntroStep();
+            }
+            
+            // Add event listeners to buttons
+            addEventListeners();
+            
+            // Animate content appearance
+            setTimeout(() => {
+                app.style.opacity = 1;
+                app.style.transform = 'translateY(0)';
+            }, 50);
+        };
+        
+        // Add event listeners to interactive elements
+        const addEventListeners = () => {
+            // Continue buttons
+            const continueButtons = document.querySelectorAll('.continue-button');
+            continueButtons.forEach(button => {
+                button.addEventListener('click', handleFirstClick);
+            });
+            
+            // Yes buttons
+            const yesButtons = document.querySelectorAll('.yes-button');
+            yesButtons.forEach(button => {
+                button.addEventListener('click', handleYes);
+            });
+            
+            // No buttons
+            const noButtons = document.querySelectorAll('.no-button');
+            noButtons.forEach(button => {
+                button.addEventListener('click', handleNo);
+            });
+            
+            // Envelope open button
+            const envelopeButton = document.querySelector('.envelope-button');
+            if (envelopeButton) {
+                envelopeButton.addEventListener('click', openEnvelope);
+            }
+        };
+        
+        // Render Intro Step
+        const renderIntroStep = () => {
+            return `
+                <div class="text-center">
+                    <div class="text-6xl mb-4 animate-pulse">❤️</div>
+                    <h1 class="text-3xl font-bold mb-4">Something special is coming...</h1>
+                    <p class="text-lg text-gray-600 mb-8">For ${HER_NAME} ❤️</p>
+                    <div class="flex justify-center gap-2 mb-8">
+                        <div class="w-3 h-3 bg-rose-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                        <div class="w-3 h-3 bg-rose-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-3 h-3 bg-rose-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                    <button class="continue-button interactive-button">
+                        Continue 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sparkle">
+                            <path d="M9.813 9.813a2.5 2.5 0 1 1 3.437 3.437L12 16.125l-1.25-1.25L12 16.125l-1.25-1.25-1.875-1.875a2.5 2.5 0 0 1 0-3.536v0a2.5 2.5 0 0 1 3.536 0h0a2.5 2.5 0 0 1 0 3.536v0"></path>
+                            <path d="M12 7v10"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        };
+        
+        // Render Surprise Question Step
+        const renderSurpriseQuestion = () => {
+            return `
+                <div class="text-center">
+                    <div class="text-6xl mb-4 animate-pulse">❤️</div>
+                    <h1 class="text-3xl font-bold mb-4">Do you like surprises?</h1>
+                    <p class="text-xl mb-8">I promise it's worth it...</p>
+                    <div class="flex flex-col gap-4 w-full">
+                        <button class="yes-button interactive-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-6 rounded-xl w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Yes ✅
+                        </button>
+                        <button class="no-button bg-gray-200 hover:bg-rose-300 text-gray-700 font-bold py-4 px-6 rounded-xl w-full" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
+                            No 😔
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Render Like Me Question Step
+        const renderLikeMeQuestion = () => {
+            return `
+                <div class="text-center">
+                    <div class="text-6xl mb-4 animate-pulse">❤️</div>
+                    <h1 class="text-3xl font-bold mb-4">${HER_NAME}, do you like me?</h1>
+                    <p class="text-xl mb-8">Be honest with me...</p>
+                    <div class="mb-8" style="animation: scaleIn 0.5s ease-out forwards; animation-delay: 0.3s;">
+                        <div class="w-40 h-40 bg-rose-200 rounded-full mx-auto flex items-center justify-center text-5xl shadow-lg">
+                            🐼
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 w-full">
+                        <button class="yes-button interactive-button bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-6 rounded-xl w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Yes ✅
+                        </button>
+                        <button class="no-button bg-gray-200 hover:bg-rose-300 text-gray-700 font-bold py-4 px-6 rounded-xl w-full" style="transform: translate(${noButtonPosition.x}px, ${noButtonPosition.y}px)">
+                            No 😔
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Render Balloon Step
+        const renderBalloonStep = () => {
+            return `
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold mb-4">This is what I want to say for so long...</h1>
+                    <p class="text-xl mb-8">Watch the balloons carry my message to you</p>
+                    
+                    <div class="flex justify-center gap-8 mb-12">
+                        <div class="w-20 h-24 bg-rose-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg animate-float" style="animation-delay: 0s">
+                            I
+                        </div>
+                        <div class="w-20 h-24 bg-rose-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg animate-float" style="animation-delay: 0.5s">
+                            Love
+                        </div>
+                        <div class="w-20 h-24 bg-rose-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg animate-float" style="animation-delay: 1s">
+                            You
+                        </div>
+                    </div>
+                    
+                    <button class="yes-button interactive-button">
+                        Continue ➡️
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        };
+        
+        // Render Memory Step
+        const renderMemoryStep = () => {
+            return `
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold mb-4">From the first day I met you, life became brighter...</h1>
+                    <p class="text-xl mb-8">You've made every moment so special ❤️</p>
+                    
+                    <div class="relative w-full max-w-md h-60 mx-auto mb-4 bg-rose-100 rounded-xl overflow-hidden shadow-lg">
+                        <img id="memoryImage" src="https://images.unsplash.com/photo-1516487106395-f2d269d6a21c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Our first coffee date" class="memory-img absolute w-full h-full object-cover" style="opacity: 1;">
+                    </div>
+                    
+                    <div class="memory-caption text-lg font-medium text-gray-700 mb-8">
+                        Our first coffee date ☕️
+                    </div>
+                    
+                    <button class="yes-button interactive-button">
+                        See the Message ➡️
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        };
+        
+        // Render Envelope Step
+        const renderEnvelopeStep = () => {
+            const letterLines = [
+                "Every challenge feels easier because I imagine you by my side.",
+                "You are not just my friend, you're the most special part of my life.",
+                "You make me smile, you make my heart race, and you make me want to be a better version of myself.",
+                "I don't know what the future holds, but I know one thing for sure.",
+                "I want that future with you."
+            ];
+            
+            return `
+                <div class="text-center">
+                    <div class="envelope w-64 h-48 mx-auto mb-8 relative">
+                        <div class="envelope-content absolute w-full h-full bg-white rounded-xl shadow-xl overflow-hidden">
+                            <div class="absolute w-full bg-white rounded-t-lg top-0 left-0" style="height: 50%;"></div>
+                            <div class="absolute w-full bg-rose-100 rounded-b-lg left-0" style="height: 50%; top: 50%;"></div>
+                            <div class="absolute w-full bg-white rounded-b-lg left-0 p-4 overflow-hidden ${isEnvelopeOpen ? 'show-letter' : ''}" style="height: 75%; top: 25%;">
+                                ${letterLines.map((line, index) => `
+                                    <p class="letter-line text-gray-700 mb-2 text-left leading-relaxed" style="transition-delay: ${index * 0.3}s">
+                                        ${line}
+                                    </p>
+                                `).join('')}
+                                
+                                <div class="signature-area mt-6 pt-4 border-t border-dashed border-rose-200">
+                                    <p class="text-gray-500 text-sm mb-2 text-right italic">With all my love,</p>
+                                    <div class="flex justify-end items-end">
+                                        <svg width="180" height="50" viewBox="0 0 180 50" class="signature-svg">
+                                            <path class="signature-path" d="M10,35 Q25,15 45,30 T85,25 Q105,15 125,30 T165,28 Q175,35 175,35" fill="none" stroke="#C2410C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <text class="signature-text" x="175" y="35" text-anchor="end" fill="#C2410C" font-size="16" font-weight="bold">
+                                                ${YOUR_NAME}
+                                            </text>
+                                        </svg>
+                                        <div class="feather-icon ml-2 text-rose-500" style="opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transition-delay: 4.8s;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                                                <line x1="16" y1="8" x2="2" y2="22"></line>
+                                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold mb-6">So, Will you be mine forever?</h2>
+                    
+                    ${!isEnvelopeOpen ? `
+                        <button class="envelope-button interactive-button px-10 py-4 text-lg hover:rotate-1">
+                            Yes, forever! ❤️
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sparkle">
+                                <path d="M9.813 9.813a2.5 2.5 0 1 1 3.437 3.437L12 16.125l-1.25-1.25L12 16.125l-1.25-1.25-1.875-1.875a2.5 2.5 0 0 1 0-3.536v0a2.5 2.5 0 0 1 3.536 0h0a2.5 2.5 0 0 1 0 3.536v0"></path>
+                                <path d="M12 7v10"></path>
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        };
+        
+        // Render Confetti Step
+        const renderConfettiStep = () => {
+            return `
+                <div class="text-center">
+                    <div class="mt-8 scale-50" style="animation: scaleIn 0.5s ease-out forwards; animation-delay: 0.2s;">
+                        <div class="flex justify-center items-center gap-4 mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-300 animate-spin" style="animation-duration: 3s;">
+                                <path d="M9.813 9.813a2.5 2.5 0 1 1 3.437 3.437L12 16.125l-1.25-1.25L12 16.125l-1.25-1.25-1.875-1.875a2.5 2.5 0 0 1 0-3.536v0a2.5 2.5 0 0 1 3.536 0h0a2.5 2.5 0 0 1 0 3.536v0"></path>
+                                <path d="M12 7v10"></path>
+                            </svg>
+                            <span class="text-6xl animate-pulse">💍</span>
+                            <span class="text-4xl animate-bounce">♾️</span>
+                        </div>
+                        <h1 class="text-5xl font-bold text-rose-600 mb-4">Let's make it worth it... Forever ✨</h1>
+                        <p class="text-2xl text-gray-700 max-w-md mx-auto">
+                            I'm so happy you said YES! Let's create forever together 💍
+                        </p>
+                        <div class="mt-8 text-lg text-rose-500 font-medium final-message" style="opacity: 0;">
+                            Thank you for saying yes to forever, ${HER_NAME} ❤️
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingHearts();
+            render();
+            
+            // For mobile devices, need user interaction to start audio
+            document.addEventListener('click', function initAudio() {
+                if (!musicPlaying && bgMusic) {
+                    bgMusic.play().catch(e => console.log("Autoplay still blocked"));
+                    musicPlaying = true;
+                    updateVolumeIcon();
+                }
+                document.removeEventListener('click', initAudio);
+            }, { once: true });
+        });
+    </script>
+</body>
+</html>
