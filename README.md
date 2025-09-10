@@ -12,6 +12,13 @@ A beautiful, interactive love confession website designed to create the perfect 
 - **Playful Interactions**: The "No" button moves away (because she can't say no! 😉)
 - **Beautiful Design**: Rose-themed color palette with elegant typography
 - **Performance Optimized**: Smooth animations without lag
+ - **Progress Bar**: See journey progress across steps
+ - **Settings & Personalization**: Floating settings button to personalize names, theme, music URL, and volume (persisted via localStorage)
+ - **Night Theme**: Toggle a dreamy night-sky theme
+ - **Reduced Motion Mode**: Accessibility-friendly option to tone down animations
+ - **Cursor Heart Trail**: Playful hearts follow your cursor (disabled in reduced motion)
+ - **Typewriter Love Letter**: Lines type out one by one, then the signature animates
+ - **Final Actions**: Replay the experience, share via Web Share API (or clipboard), and download the love letter as a .txt file
 
 ## 🚀 Quick Start
 
